@@ -6,9 +6,9 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface ApiService {
-    @POST(".")  // Using "." because the full endpoint is already specified in the BASE_URL
-    Call<ImageResponse> generateImage(
-            @Header("Authorization") String apiKey,
-            @Body ImageRequest request
-    );
-} 
+    @POST("/auth")
+    Call<AuthResponse> authenticate(@Header("Authorization") String bearerToken);
+
+    @POST("/generate_image")
+    Call<String> generateImage(@Header("Authorization") String bearerToken, @Body ImageGenRequest request);
+}

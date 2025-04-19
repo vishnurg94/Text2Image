@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     android:background="@color/colorBackground"
+    android:padding="16dp"
     tools:context=".MainActivity">
 
     <!-- Animated background - must be first to be drawn behind everything else -->
@@ -23,11 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="VIRUS SOUP AI"
+        android:textColor="@color/colorPrimary"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimary"
-        android:fontFamily="sans-serif-condensed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -38,8 +38,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Digital chaos transformed into art"
-        android:textSize="16sp"
         android:textColor="@color/colorSecondaryText"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvHeader" />
@@ -61,9 +61,9 @@
             android:id="@+id/etPrompt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorText"
             android:inputType="textMultiLine"
-            android:minLines="3" />
+            android:minLines="3"
+            android:textColor="@color/colorText" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -71,11 +71,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="MUTATE REALITY"
-        android:textStyle="bold"
-        android:padding="12dp"
         android:backgroundTint="@color/colorPrimary"
+        android:padding="12dp"
+        android:text="MUTATE REALITY"
         android:textColor="@color/colorTextOnNeon"
+        android:textStyle="bold"
         app:cornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,11 +86,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-condensed"
         android:text="YOUR MUTATION:"
+        android:textColor="@color/colorPrimary"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimary"
-        android:fontFamily="sans-serif-condensed"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnGenerate" />
@@ -105,12 +105,12 @@
         app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp"
-        app:strokeColor="@color/colorPrimary"
-        app:strokeWidth="2dp"
         app:layout_constraintBottom_toTopOf="@+id/btnDownload"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvResultLabel">
+        app:layout_constraintTop_toBottomOf="@+id/tvResultLabel"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="2dp">
 
         <ImageView
             android:id="@+id/ivGeneratedImage"
@@ -126,17 +126,17 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
-        android:text="DOWNLOAD"
-        android:textStyle="bold"
         android:backgroundTint="@color/colorSurface"
+        android:text="DOWNLOAD"
         android:textColor="@color/colorPrimary"
-        app:strokeColor="@color/colorPrimary"
-        app:strokeWidth="2dp"
-        app:cornerRadius="8dp"
+        android:textStyle="bold"
         android:visibility="gone"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnShare"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="2dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnShare"
@@ -144,12 +144,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="16dp"
-        android:text="SHARE"
-        android:textStyle="bold"
         android:backgroundTint="@color/colorPrimary"
+        android:text="SHARE"
         android:textColor="@color/colorTextOnNeon"
-        app:cornerRadius="8dp"
+        android:textStyle="bold"
         android:visibility="gone"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnDownload" />
@@ -166,4 +166,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout> 
+</androidx.constraintlayout.widget.ConstraintLayout>

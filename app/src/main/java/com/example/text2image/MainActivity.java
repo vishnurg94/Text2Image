@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -25,8 +26,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.text2image.api.ApiService;
+import com.example.text2image.api.AuthResponse;
+import com.example.text2image.api.ImageGenRequest;
 import com.example.text2image.api.ImageRequest;
 import com.example.text2image.api.ImageResponse;
+import com.example.text2image.api.ImageUrlResponse;
 import com.example.text2image.api.RetrofitClient;
 import com.example.text2image.databinding.ActivityMainBinding;
 
@@ -56,19 +60,30 @@ public class MainActivity extends AppCompatActivity {
 
         // Set app title
         setTitle("Virus Soup AI");
-        
+
         // Setup UI with animations
         setupAnimatedUI();
 
-        binding.btnGenerate.setOnClickListener(v -> generateImage());
+        // Handle Generate button click
+        binding.btnGenerate.setOnClickListener(v -> {
+            generateImage();  // Handles prompt check, auth, and image generation
+        });
+
+        // Hook up Save to Gallery button
         binding.btnDownload.setOnClickListener(v -> {
             if (generatedImageBitmap != null) {
-                saveImageToGallery(generatedImageBitmap);
+                saveImageToGallery(generatedImageBitmap);  // Save image to gallery
+            } else {
+                Toast.makeText(MainActivity.this, "No image to save", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Hook up Share Image button
         binding.btnShare.setOnClickListener(v -> {
             if (generatedImageBitmap != null) {
-                shareImage(generatedImageBitmap);
+                shareImage(generatedImageBitmap);  // Share image
+            } else {
+                Toast.makeText(MainActivity.this, "No image to share", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,66 +143,61 @@ public class MainActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(prompt)) {
             binding.etPrompt.setError("Please enter a prompt");
             binding.etPrompt.requestFocus();
-            
-            // Add error shake animation
-            ObjectAnimator shake = ObjectAnimator.ofFloat(binding.tilPrompt, "translationX", 
-                    0, -10f, 10f, -10f, 10f, -5f, 5f, -5f, 5f, 0);
-            shake.setDuration(500);
-            shake.start();
             return;
         }
 
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        // Add pulsing animation to progress bar
-        ObjectAnimator pulse = ObjectAnimator.ofFloat(binding.progressBar, "scaleX", 1f, 1.2f, 1f);
-        ObjectAnimator pulseY = ObjectAnimator.ofFloat(binding.progressBar, "scaleY", 1f, 1.2f, 1f);
-        pulse.setDuration(1000);
-        pulseY.setDuration(1000);
-        pulse.setRepeatCount(ObjectAnimator.INFINITE);
-        pulseY.setRepeatCount(ObjectAnimator.INFINITE);
-        pulse.start();
-        pulseY.start();
-
         ApiService apiService = RetrofitClient.getInstance().getApiService();
-        ImageRequest request = new ImageRequest(prompt);
-
-        Call<ImageResponse> call = apiService.generateImage("Bearer " + API_KEY, request);
-        call.enqueue(new Callback<ImageResponse>() {
+        String API_KEY = "c0957e34a11786192e8819a7d4faef725c3a0becf05716823b30e37111196e92ba1953a695dddd761cce8abbffefce40da8059d06aa651a02f9cc3322a7d1e0b";
+        // Step 1: Authenticate
+        apiService.authenticate(API_KEY).enqueue(new Callback<AuthResponse>() {
             @Override
-            public void onResponse(Call<ImageResponse> call, Response<ImageResponse> response) {
-                binding.progressBar.setVisibility(View.GONE);
-                pulse.cancel();
-                pulseY.cancel();
-                
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    ImageResponse imageResponse = response.body();
-                    if (imageResponse.isSuccess() && imageResponse.getImageUrl() != null) {
-                        loadImageFromUrl(imageResponse.getImageUrl());
-                    } else {
-                        Toast.makeText(MainActivity.this, 
-                                "Error: " + imageResponse.getMessage(), 
-                                Toast.LENGTH_SHORT).show();
-                    }
+                    String signature = response.body().getSignature();
+
+                    // Step 2: Generate Image using signature
+                    ImageGenRequest request = new ImageGenRequest(signature, prompt);
+                    apiService.generateImage(
+                            API_KEY,
+                            request
+                    ).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            binding.progressBar.setVisibility(View.GONE);
+                            Log.i("RESPONSE BODY", response.body().toString());
+                            if (response.isSuccessful() && response.body() != null) {
+
+                                String imageUrl = response.body().replace("\"", "");
+
+                                loadImageFromUrl("https://ai.elliottwen.info/" +imageUrl);
+                            } else {
+                                Toast.makeText(MainActivity.this, "Failed to generate image.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            binding.progressBar.setVisibility(View.GONE);
+                            Toast.makeText(MainActivity.this, "Image generation error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
-                    Toast.makeText(MainActivity.this, 
-                            "Failed to generate image. Please try again.", 
-                            Toast.LENGTH_SHORT).show();
+                    binding.progressBar.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Auth failed", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<ImageResponse> call, Throwable t) {
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
                 binding.progressBar.setVisibility(View.GONE);
-                pulse.cancel();
-                pulseY.cancel();
-                
-                Toast.makeText(MainActivity.this, 
-                        "Network error: " + t.getMessage(), 
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Auth error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void loadImageFromUrl(String imageUrl) {
         // Make UI elements visible but with alpha=0 for animation
